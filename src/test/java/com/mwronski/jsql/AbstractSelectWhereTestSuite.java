@@ -24,6 +24,14 @@ public abstract class AbstractSelectWhereTestSuite extends JSqlTestCase {
         verifySelectWhere(sql);
     }
 
+    @Test
+    public final void testSelectWhere_FlatAPI() {
+        Entity entity = sql.alias(Entity.class);
+        sql.select(entity.getId(), entity.getString()).from(entity).where().eq(entity.getId(), 5l).and()
+                .eq(entity.getString(), "aaa");
+        verifySelectWhere(sql);
+    }
+
     /**
      * Verify SQL statement for: <br>
      * SELECT id, string FROM Entity WHERE id=5 AND string='aaa'
@@ -38,6 +46,14 @@ public abstract class AbstractSelectWhereTestSuite extends JSqlTestCase {
         verifySelectWhereWithNullParam(sql);
     }
 
+    @Test
+    public final void testSelectWhereNullValue_FlatAPI() {
+        Entity entity = sql.alias(Entity.class);
+        sql.select(entity.getId(), entity.getString()).from(entity).where().eq(entity.getId(), 5l).and()
+                .eq(entity.getString(), null);
+        verifySelectWhereWithNullParam(sql);
+    }
+
     /**
      * Verify SQL statement for: <br>
      * SELECT id, string FROM Entity WHERE id=5 AND string is null
@@ -48,6 +64,13 @@ public abstract class AbstractSelectWhereTestSuite extends JSqlTestCase {
     public final void testSelectWhereNullValueSkipable() {
         Entity entity = sql.alias(Entity.class);
         sql.select(entity.getId(), entity.getString()).from(entity).where(sql.cond().eq(entity.getId(), null, true));
+        verifySelectWhereWithNullParamToSkip(sql);
+    }
+
+    @Test
+    public final void testSelectWhereNullValueSkipable_FlatAPI() {
+        Entity entity = sql.alias(Entity.class);
+        sql.select(entity.getId(), entity.getString()).from(entity).where().eq(entity.getId(), null, true);
         verifySelectWhereWithNullParamToSkip(sql);
     }
 
@@ -124,6 +147,14 @@ public abstract class AbstractSelectWhereTestSuite extends JSqlTestCase {
         Condition subCondition = sql.cond().eq(entity.getString(), null, true).or().eq(entity.getString(), null, true);
         sql.select(entity.getId(), entity.getString()).from(entity)
                 .where(sql.cond().eq(entity.getId(), 5l).and(subCondition));
+        verifySelectWhereNestedWithSkipableParms(sql);
+    }
+
+    @Test
+    public final void testSelectWhere_NestedSkipable_FlatAPI() {
+        Entity entity = sql.alias(Entity.class);
+        Condition subCondition = sql.cond().eq(entity.getString(), null, true).or().eq(entity.getString(), null, true);
+        sql.select(entity.getId(), entity.getString()).from(entity).where().eq(entity.getId(), 5l).and(subCondition);
         verifySelectWhereNestedWithSkipableParms(sql);
     }
 

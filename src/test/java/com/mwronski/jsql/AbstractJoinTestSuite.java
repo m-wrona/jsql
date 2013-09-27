@@ -70,6 +70,15 @@ public abstract class AbstractJoinTestSuite extends JSqlTestCase {
         verifyLeftJoin(sql);
     }
 
+    @Test
+    public final void testLeftJoin_FlatAPI() {
+        Entity entity1 = sql.alias(Entity.class, "e1");
+        Entity entity2 = sql.alias(Entity.class, "e2");
+        Select select = sql.select(entity1.getId(), entity2.getString()).from(entity1);
+        select.join().left().table(entity2).on(sql.cond().eq(entity1.getId(), entity2.getId()));
+        verifyLeftJoin(sql);
+    }
+
     /**
      * Verify SQL statement for: <br>
      * SELECT e1.id, e2.string FROM Entity e1 LEFT JOIN Entity e2 ON e1.id=e2.id
@@ -82,6 +91,15 @@ public abstract class AbstractJoinTestSuite extends JSqlTestCase {
         Entity entity2 = sql.alias(Entity.class, "e2");
         Select select = sql.select(entity1.getId(), entity2.getString()).from(entity1);
         select.rightJoin(entity2).on(sql.cond().eq(entity1.getId(), entity2.getId()));
+        verifyRightJoin(sql);
+    }
+
+    @Test
+    public final void testRightJoin_FlatAPI() {
+        Entity entity1 = sql.alias(Entity.class, "e1");
+        Entity entity2 = sql.alias(Entity.class, "e2");
+        Select select = sql.select(entity1.getId(), entity2.getString()).from(entity1);
+        select.join().right().table(entity2).on(sql.cond().eq(entity1.getId(), entity2.getId()));
         verifyRightJoin(sql);
     }
 
@@ -101,6 +119,15 @@ public abstract class AbstractJoinTestSuite extends JSqlTestCase {
         verifyLeftOuterJoin(sql);
     }
 
+    @Test
+    public final void testLeftOuterJoin_FlatAPI() {
+        Entity entity1 = sql.alias(Entity.class, "e1");
+        Entity entity2 = sql.alias(Entity.class, "e2");
+        Select select = sql.select(entity1.getId(), entity2.getString()).from(entity1);
+        select.join().left().outer().table(entity2).on(sql.cond().eq(entity1.getId(), entity2.getId()));
+        verifyLeftOuterJoin(sql);
+    }
+
     /**
      * Verify SQL statement for: <br>
      * SELECT e1.id, e2.string FROM Entity e1 LEFT OUTER JOIN Entity e2 ON
@@ -114,6 +141,15 @@ public abstract class AbstractJoinTestSuite extends JSqlTestCase {
         Entity entity2 = sql.alias(Entity.class, "e2");
         Select select = sql.select(entity1.getId(), entity2.getString()).from(entity1);
         select.leftInnerJoin(entity2).on(sql.cond().eq(entity1.getId(), entity2.getId()));
+        verifyLeftInnerJoin(sql);
+    }
+
+    @Test
+    public final void testLeftInnerJoin_FlatAPI() {
+        Entity entity1 = sql.alias(Entity.class, "e1");
+        Entity entity2 = sql.alias(Entity.class, "e2");
+        Select select = sql.select(entity1.getId(), entity2.getString()).from(entity1);
+        select.join().inner().left().table(entity2).on(sql.cond().eq(entity1.getId(), entity2.getId()));
         verifyLeftInnerJoin(sql);
     }
 
@@ -163,6 +199,16 @@ public abstract class AbstractJoinTestSuite extends JSqlTestCase {
         Select select = sql.select(entity1.getId(), entity2.getString()).from(entity1);
         select.join(entity2).on(sql.cond().eq(entity1.getId(), entity2.getId()));
         select.where(sql.cond().eq(entity1.getString(), "aaa").and().eq(entity2.getString(), "bbb"));
+        verifyJoinWhere(sql);
+    }
+
+    @Test
+    public final void testJoinWhere_FlatAPI() {
+        Entity entity1 = sql.alias(Entity.class, "e1");
+        Entity entity2 = sql.alias(Entity.class, "e2");
+        Select select = sql.select(entity1.getId(), entity2.getString()).from(entity1);
+        select.join().table(entity2).on(sql.cond().eq(entity1.getId(), entity2.getId()));
+        select.where().eq(entity1.getString(), "aaa").and().eq(entity2.getString(), "bbb");
         verifyJoinWhere(sql);
     }
 
