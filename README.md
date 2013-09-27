@@ -1,4 +1,4 @@
-jsql
+jSQL
 ====
 
 DSL library for building SQL queries in Java in similar way as it's done in LINQ for .NET. 
