@@ -58,3 +58,28 @@ EntityManager em = ... //provide your entity manager here
 Query query = sql.getQuery(em , Entity.class);
 query.getResultList();
 ```
+
+# Build 
+
+jSQL is using test DB to check whether all built SQL statements are correct.
+
+Therefore before making build, PostgreSQL 8.4 database must be created with following credentials:
+
+```
+Database: jsql
+Port: 5432
+Username: jsql
+Password: jsql
+```
+
+After setting up database just run maven:
+
+```
+mvn clean install
+```
+
+
+
+
+
+
