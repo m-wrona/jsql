@@ -7,7 +7,7 @@ package com.mwronski.jsql.model;
  * @author Michal Wronski
  * 
  */
-public final class Table extends SqlToken {
+public final class Table {
 
     private final Class<?> tableClass;
     private final String alias;

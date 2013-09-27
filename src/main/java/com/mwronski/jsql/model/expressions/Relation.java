@@ -10,7 +10,7 @@ import com.mwronski.jsql.recording.SqlRecorder;
  * @author Michal Wronski
  * 
  */
-public final class Relation extends Expression {
+public final class Relation implements Expression {
 
     public enum RelationType {
         EQ, NEQ, EL, EG, GT, LT, REGEX;
@@ -57,6 +57,14 @@ public final class Relation extends Expression {
     @Override
     public boolean isNullOmittable() {
         return omittable;
+    }
+
+    @Override
+    public boolean isNull() {
+        if (varValue != null) {
+            return false;
+        }
+        return value == null;
     }
 
     public boolean shouldBeOmitted() {

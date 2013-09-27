@@ -2,11 +2,9 @@ package com.mwronski.jsql.parser.dql;
 
 import java.util.List;
 
-import com.mwronski.jsql.model.Noun;
-import com.mwronski.jsql.model.Noun.Nouns;
-import com.mwronski.jsql.model.SqlToken;
 import com.mwronski.jsql.model.Table;
-import com.mwronski.jsql.parser.SqlParser;
+import com.mwronski.jsql.model.dql.JoinStatement;
+import com.mwronski.jsql.recording.SqlRecorder;
 
 /**
  * SQL JOIN command parser
@@ -15,34 +13,97 @@ import com.mwronski.jsql.parser.SqlParser;
  * @author Michal Wronski
  * 
  */
-public final class Join implements SqlParser {
+public final class Join {
 
+    private final SqlRecorder recorder;
+    private final JoinStatement statement = new JoinStatement();
     private final Select select;
-    private final Noun joinNoun;
 
     /**
-     * Create instance
+     * Create instance and attach it to SELECT statement
      * 
+     * @param recorder
+     *            that allows recording of select tokens
      * @param select
-     *            statement where join will be made
-     * @param o
-     *            data that will be joined to select
-     * @param nouns
-     *            additional nouns for specifying whether join is left, outer
-     *            etc.
+     *            root SELECT statement
      */
-    Join(final Select select, final Object o, final Noun... nouns) {
+    Join(SqlRecorder recorder, Select select) {
+        this(recorder, select, JoinStatement.Direction.NONE, JoinStatement.Type.NONE);
+    }
+
+    /**
+     * Create instance and attach it to SELECT statement
+     * 
+     * @param recorder
+     *            that allows recording of select tokens
+     * @param select
+     *            root SELECT statement
+     * @param direction
+     *            direction of joined table
+     * @param type
+     *            type of made join
+     */
+    Join(SqlRecorder recorder, Select select, JoinStatement.Direction direction, JoinStatement.Type type) {
+        this.recorder = recorder;
         this.select = select;
-        List<Table> fromTables = select.getRecorder().tables(o);
-        if (fromTables.isEmpty()) {
-            throw new RuntimeException("Didn't found SQL tokens in FROM cluasule");
+        statement.setDirection(direction);
+        statement.setType(type);
+        select.getStatement().getJoins().add(statement);
+    }
+
+    /**
+     * Set table to be joined
+     * 
+     * @param o
+     * @return this instance
+     */
+    public Join table(Object o) {
+        List<Table> joinedTables = recorder.tables(o);
+        if (joinedTables.size() != 1) {
+            throw new RuntimeException("One joined table expected - got: " + joinedTables.size());
         }
-        joinNoun = new Noun(Nouns.JOIN);
-        select.append(joinNoun);
-        for (Noun noun : nouns) {
-            joinNoun.add(noun);
-        }
-        joinNoun.addAll(fromTables);
+        statement.setTable(joinedTables.get(0));
+        return this;
+    }
+
+    /**
+     * Make inner join
+     * 
+     * @return this instance
+     */
+    public Join inner() {
+        statement.setType(JoinStatement.Type.INNER);
+        return this;
+    }
+
+    /**
+     * Make outer join
+     * 
+     * @return this instance
+     */
+    public Join outer() {
+        statement.setType(JoinStatement.Type.OUTER);
+        return this;
+    }
+
+    /**
+     * Make left join
+     * 
+     * @return this instance
+     */
+    public Join left() {
+        statement.setDirection(JoinStatement.Direction.LEFT);
+        return this;
+    }
+
+    /**
+     * Make right join
+     * 
+     * @return this instance
+     */
+    public Join right() {
+        statement.setDirection(JoinStatement.Direction.RIGHT);
+        return this;
     }
 
     /**
@@ -52,14 +113,8 @@ public final class Join implements SqlParser {
      * @return SELECT where this instance is JOINed
      */
     public Select on(final Condition on) {
-        joinNoun.add(new Noun(Nouns.ON));
-        joinNoun.add(on.getRoot());
+        statement.setOn(on.getChain());
         return select;
-    }
-
-    @Override
-    public SqlToken getRoot() {
-        return joinNoun;
     }
 
 }

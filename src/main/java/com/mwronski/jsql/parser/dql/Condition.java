@@ -1,14 +1,10 @@
 package com.mwronski.jsql.parser.dql;
 
-import com.mwronski.jsql.model.GroupToken;
-import com.mwronski.jsql.model.Noun;
-import com.mwronski.jsql.model.SqlToken;
-import com.mwronski.jsql.model.Noun.Nouns;
-import com.mwronski.jsql.model.expressions.Collection;
+import com.mwronski.jsql.model.expressions.InExpression;
+import com.mwronski.jsql.model.expressions.InExpression.CollectionType;
+import com.mwronski.jsql.model.expressions.ExpressionChain;
 import com.mwronski.jsql.model.expressions.Relation;
-import com.mwronski.jsql.model.expressions.Collection.CollectionType;
 import com.mwronski.jsql.model.expressions.Relation.RelationType;
-import com.mwronski.jsql.parser.SqlParser;
 import com.mwronski.jsql.recording.SqlRecorder;
 
 /**
@@ -21,19 +17,18 @@ import com.mwronski.jsql.recording.SqlRecorder;
  * @author Michal Wronski
  * 
  */
-public final class Condition implements SqlParser {
+public class Condition {
 
-    private final SqlToken conditionToken = new SqlToken();
     private final SqlRecorder recorder;
-
-    private boolean firstCondition = true;
-    private Noun conditionNoun = null;
+    private ExpressionChain chain = new ExpressionChain();
+    private ExpressionChain.Type nextConditionType = ExpressionChain.Type.AND;
 
     /**
      * Create instance
      * 
      * @param recorder
      *            that allows recording of new conditions in statement
+     * 
      */
     public Condition(final SqlRecorder recorder) {
         this.recorder = recorder;
@@ -45,7 +40,7 @@ public final class Condition implements SqlParser {
      * @return the same instance
      */
     public Condition and() {
-        conditionNoun = new Noun(Nouns.AND);
+        nextConditionType = ExpressionChain.Type.AND;
         return this;
     }
 
@@ -56,9 +51,7 @@ public final class Condition implements SqlParser {
      * @return the same instance
      */
     public Condition and(final Condition subCondition) {
-        if (!subCondition.isNull()) {
-            addConjuction(true, subCondition.getRoot());
-        }
+        chain.add(ExpressionChain.Type.AND, subCondition.chain);
         return this;
     }
 
@@ -68,7 +61,7 @@ public final class Condition implements SqlParser {
      * @return the same instance
      */
     public Condition or() {
-        conditionNoun = new Noun(Nouns.OR);
+        nextConditionType = ExpressionChain.Type.OR;
         return this;
     }
 
@@ -79,31 +72,8 @@ public final class Condition implements SqlParser {
      * @return the same instance
      */
     public Condition or(final Condition subCondition) {
-        if (!subCondition.isNull()) {
-            addConjuction(false, subCondition.getRoot());
-        }
+        chain.add(ExpressionChain.Type.OR, subCondition.chain);
         return this;
-    }
-
-    /**
-     * Add sub-condition
-     * 
-     * @param and
-     *            flag indicates whether sub-condition will be append in AND or
-     *            OR
-     * @param subConditionToken
-     *            condition to be appended
-     */
-    private void addConjuction(final boolean and, final SqlToken subConditionToken) {
-        Noun conjuctionNoun = new Noun(and ? Nouns.AND : Nouns.OR);
-        if (!firstCondition) {
-            conditionToken.add(conjuctionNoun);
-        } else {
-            firstCondition = false;
-        }
-        GroupToken group = new GroupToken();
-        group.add(subConditionToken);
-        conditionToken.add(group);
     }
 
     /**
@@ -363,13 +333,7 @@ public final class Condition implements SqlParser {
     private Condition addRelation(final Object param, final Object value, final RelationType relationType,
             final boolean omittable, final boolean caseInsensitive) {
         Relation relation = new Relation(recorder, param, relationType, value, omittable, caseInsensitive);
-        if (!relation.shouldBeOmitted()) {
-            if (conditionNoun != null && !firstCondition) {
-                conditionToken.add(conditionNoun);
-            }
-            conditionToken.add(relation);
-            firstCondition = false;
-        }
+        chain.add(nextConditionType, relation);
         return this;
     }
 
@@ -377,7 +341,7 @@ public final class Condition implements SqlParser {
      * Build condition: param in values
      * 
      * @param param
-     * @param value
+     * @param values
      * @return the same instance
      */
     public <T> Condition in(final Object param, final T... values) {
@@ -388,7 +352,7 @@ public final class Condition implements SqlParser {
      * Build condition: param in values
      * 
      * @param param
-     * @param value
+     * @param values
      * @param omittable
      *            flag indicates whether condition can be omitted if it's
      *            evaluated as null
@@ -402,7 +366,7 @@ public final class Condition implements SqlParser {
      * Build condition: param not in values
      * 
      * @param param
-     * @param value
+     * @param values
      * @return the same instance
      */
     public <T> Condition notIn(final Object param, final T... values) {
@@ -413,7 +377,7 @@ public final class Condition implements SqlParser {
      * Build condition: param not in values
      * 
      * @param param
-     * @param value
+     * @param values
      * @param omittable
      *            flag indicates whether condition can be omitted if it's
      *            evaluated as null
@@ -430,35 +394,23 @@ public final class Condition implements SqlParser {
      * @param omittable
      *            flag indicates whether condition can be omitted if it's
      *            evaluated as null
-     * @param type
+     * @param collectionType
      * @param values
      * @return the same instance
      */
-    private Condition addCollection(final Object param, final boolean omittable, final CollectionType type,
+    private Condition addCollection(final Object param, final boolean omittable, final CollectionType collectionType,
             final Object... values) {
-        Collection collection = new Collection(recorder, param, type, omittable, values);
-        if (!collection.shouldBeOmitted()) {
-            if (conditionNoun != null && !firstCondition) {
-                conditionToken.add(conditionNoun);
-            }
-            conditionToken.add(collection);
-            firstCondition = false;
-        }
+        InExpression collection = new InExpression(recorder, param, collectionType, omittable, values);
+        chain.add(nextConditionType, collection);
         return this;
     }
 
-    @Override
-    public SqlToken getRoot() {
-        return conditionToken;
+    ExpressionChain getChain() {
+        return chain;
     }
 
-    /**
-     * Check whether condition is evaluated as NULL
-     * 
-     * @return
-     */
-    public boolean isNull() {
-        return !conditionToken.hasChildren();
+    SqlRecorder getRecorder() {
+        return recorder;
     }
 
 }

@@ -6,10 +6,13 @@ import java.util.Map;
 
 import com.mwronski.jsql.builder.SqlSelectBuilder;
 import com.mwronski.jsql.grammar.GrammarUtil;
-import com.mwronski.jsql.model.*;
-import com.mwronski.jsql.model.Noun.Nouns;
-import com.mwronski.jsql.model.expressions.Collection;
-import com.mwronski.jsql.model.expressions.Order.VarItem;
+import com.mwronski.jsql.model.Table;
+import com.mwronski.jsql.model.Variable;
+import com.mwronski.jsql.model.dql.JoinStatement;
+import com.mwronski.jsql.model.dql.SelectStatement;
+import com.mwronski.jsql.model.expressions.InExpression;
+import com.mwronski.jsql.model.expressions.Expression;
+import com.mwronski.jsql.model.expressions.ExpressionChain;
 import com.mwronski.jsql.model.expressions.Relation;
 import com.mwronski.jsql.model.expressions.Relation.RelationType;
 
@@ -36,11 +39,6 @@ public abstract class SQLSelectBuilder implements SqlSelectBuilder {
      * Index of current SQL parameter
      */
     private int paramIndex = 1;
-    /**
-     * Flag indicates whether all columns from any table in statement should be
-     * taken
-     */
-    protected boolean isSelectAll;
 
     @Override
     public String asSQL() {
@@ -72,13 +70,19 @@ public abstract class SQLSelectBuilder implements SqlSelectBuilder {
     @Override
     public final void handleSelect(List<Table> tables, final List<Variable> selectColumns, final boolean distinct,
             final boolean count) {
-        for (Table table : tables) {
-            appendSelectAllFromTable(sqlColumns, table);
+        // append all columns from tables
+        if (selectColumns.isEmpty() && !count) {
+            // select all without count
+            for (Table table : tables) {
+                appendSelectAllFromTable(sqlColumns, table);
+            }
         }
+        // append columns
         for (Variable column : selectColumns) {
             appendElementBreak(sqlColumns);
             sqlColumns.append(getVariableName(column));
         }
+        // append distinct and count
         if (distinct && sqlColumns.length() > 0) {
             sqlColumns.insert(0, Nouns.DISTINCT + GrammarUtil.SPACE);
         }
@@ -86,7 +90,6 @@ public abstract class SQLSelectBuilder implements SqlSelectBuilder {
             appendElementBreak(sqlColumns);
             sqlColumns.append(GrammarUtil.COUNT_ALL);
         }
-        isSelectAll = sqlColumns.length() == 0;
     }
 
     /**
@@ -102,10 +105,6 @@ public abstract class SQLSelectBuilder implements SqlSelectBuilder {
     @Override
     public final void handleFrom(final List<Table> tables) {
         for (Table table : tables) {
-            // append select all to columns if needed
-            if (isSelectAll) {
-                appendSelectAllFromTable(sqlColumns, table);
-            }
             // append table name
             appendElementBreak(sqlTables);
             sqlTables.append(getTableDefinitionName(table));
@@ -159,15 +158,13 @@ public abstract class SQLSelectBuilder implements SqlSelectBuilder {
     }
 
     @Override
-    public void handleJoin(final Table joinedTable, final Boolean left, final Boolean inner, final SqlToken onCondition) {
-        if (isSelectAll) {
-            appendSelectAllFromTable(sqlColumns, joinedTable);
+    public void handleJoin(final Table joinedTable, JoinStatement.Direction direction, JoinStatement.Type type,
+            ExpressionChain onCondition) {
+        if (direction != JoinStatement.Direction.NONE) {
+            sqlJoins.append(GrammarUtil.SPACE).append(direction);
         }
-        if (left != null) {
-            sqlJoins.append(GrammarUtil.SPACE).append(left ? Nouns.LEFT : Nouns.RIGHT);
-        }
-        if (inner != null) {
-            sqlJoins.append(GrammarUtil.SPACE).append(inner ? Nouns.INNER : Nouns.OUTER);
+        if (type != JoinStatement.Type.NONE) {
+            sqlJoins.append(GrammarUtil.SPACE).append(type);
         }
         sqlJoins.append(GrammarUtil.SPACE).append(Nouns.JOIN);
         sqlJoins.append(GrammarUtil.SPACE).append(getTableDefinitionName(joinedTable));
@@ -176,7 +173,7 @@ public abstract class SQLSelectBuilder implements SqlSelectBuilder {
     }
 
     @Override
-    public final void handleWhere(final SqlToken where) {
+    public final void handleWhere(final ExpressionChain where) {
         appendConditions(sqlWhere, where);
     }
 
@@ -186,46 +183,54 @@ public abstract class SQLSelectBuilder implements SqlSelectBuilder {
      * @param sqlCondition
      * @param condition
      */
-    protected final void appendConditions(final StringBuilder sqlCondition, final SqlToken condition) {
-        for (SqlToken token : condition) {
+    protected final void appendConditions(final StringBuilder sqlCondition, final ExpressionChain condition) {
+        boolean first = true;
+        for (Map.Entry<Expression, ExpressionChain.Type> entry : condition.getConditions().entrySet()) {
+            Expression token = entry.getKey();
+            if (token.isNull() && token.isNullOmittable()) {
+                continue;
+            }
             if (sqlCondition.length() > 0) {
                 sqlCondition.append(GrammarUtil.SPACE);
             }
-            if (token instanceof Noun) {
-                sqlCondition.append(((Noun) token).getNoun());
-            } else if (token instanceof GroupToken) {
+            if (!first) {
+                sqlCondition.append(entry.getValue()).append(GrammarUtil.SPACE);
+            }
+            if (token instanceof ExpressionChain) {
                 StringBuilder subCondition = new StringBuilder();
-                appendConditions(subCondition, token.getChildren().get(0));
+                appendConditions(subCondition, (ExpressionChain) token);
                 sqlCondition.append(GrammarUtil.LEFT_BRACKET).append(subCondition).append(GrammarUtil.RIGHT_BRACKET);
             } else if (token instanceof Relation) {
                 appendRelation(sqlCondition, (Relation) token);
-            } else if (token instanceof Collection) {
-                appendCollection(sqlCondition, (Collection) token);
+            } else if (token instanceof InExpression) {
+                appendInExpression(sqlCondition, (InExpression) token);
             } else {
                 throw new UnsupportedOperationException("Unknown condition type: " + token.getClass());
             }
+            first = false;
         }
+
     }
 
     /**
      * Append condition with collection into given SQL condition
      * 
      * @param sqlCondition
-     * @param collection
+     * @param inExpression
      */
-    private void appendCollection(final StringBuilder sqlCondition, final Collection collection) {
-        sqlCondition.append(getVariableName(collection.getVar()));
+    private void appendInExpression(final StringBuilder sqlCondition, final InExpression inExpression) {
+        sqlCondition.append(getVariableName(inExpression.getVar()));
         sqlCondition.append(GrammarUtil.SPACE);
-        if (collection.getValues() != null) {
-            sqlCondition.append(collection.getType());
+        if (inExpression.getValues() != null) {
+            sqlCondition.append(inExpression.getType());
             sqlCondition.append(GrammarUtil.SPACE);
             sqlCondition.append(GrammarUtil.LEFT_BRACKET);
             int paramIndex = getUniqueParamIndex();
-            params.put(paramIndex, collection.getValues());
+            params.put(paramIndex, inExpression.getValues());
             sqlCondition.append(GrammarUtil.PARAM + paramIndex);
             sqlCondition.append(GrammarUtil.RIGHT_BRACKET);
         } else {
-            switch (collection.getType()) {
+            switch (inExpression.getType()) {
             case IN:
                 sqlCondition.append(GrammarUtil.IS_NULL);
                 break;
@@ -351,11 +356,11 @@ public abstract class SQLSelectBuilder implements SqlSelectBuilder {
     protected abstract String getRegExpWildcardMark();
 
     @Override
-    public final void handleOrderBy(final List<VarItem> variables) {
-        for (VarItem var : variables) {
+    public final void handleOrderBy(Map<Variable, Boolean> variables) {
+        for (Map.Entry<Variable, Boolean> var : variables.entrySet()) {
             appendElementBreak(sqlOrderBy);
-            sqlOrderBy.append(getVariableName(var.getVar()));
-            if (var.isDesc()) {
+            sqlOrderBy.append(getVariableName(var.getKey()));
+            if (var.getValue().equals(SelectStatement.DESC)) {
                 sqlOrderBy.append(GrammarUtil.SPACE).append(GrammarUtil.DESC);
             }
         }

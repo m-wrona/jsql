@@ -4,11 +4,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.mwronski.jsql.grammar.GrammarUtil;
+import com.mwronski.jsql.grammar.common.Nouns;
 import com.mwronski.jsql.grammar.common.SQLSelectBuilder;
-import com.mwronski.jsql.model.Noun.Nouns;
-import com.mwronski.jsql.model.SqlToken;
 import com.mwronski.jsql.model.Table;
 import com.mwronski.jsql.model.Variable;
+import com.mwronski.jsql.model.dql.JoinStatement;
+import com.mwronski.jsql.model.expressions.ExpressionChain;
 
 /**
  * Select statement for JP-QL grammar
@@ -88,7 +89,8 @@ final class JPQLSelectBuilder extends SQLSelectBuilder {
     }
 
     @Override
-    public void handleJoin(final Table joinedTable, final Boolean left, final Boolean inner, final SqlToken onCondition) {
+    public void handleJoin(final Table joinedTable, JoinStatement.Direction direction, JoinStatement.Type type,
+            ExpressionChain onCondition) {
         // emulate join statement
         // TODO change to real join when model and parser is changed
         List<Table> joinedTables = new ArrayList<Table>();

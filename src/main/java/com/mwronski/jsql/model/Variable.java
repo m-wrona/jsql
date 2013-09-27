@@ -9,7 +9,7 @@ import java.lang.reflect.Method;
  * @author Michal Wronski
  * 
  */
-public final class Variable extends SqlToken {
+public final class Variable {
 
     private final Table table;
     private final Method method;

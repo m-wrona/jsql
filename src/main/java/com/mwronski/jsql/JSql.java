@@ -9,7 +9,6 @@ import com.mwronski.jsql.builder.SqlCommandBuilder;
 import com.mwronski.jsql.builder.SqlSelectBuilder;
 import com.mwronski.jsql.builder.SqlSelectTreeWalker;
 import com.mwronski.jsql.grammar.SqlGrammar;
-import com.mwronski.jsql.parser.SqlParser;
 import com.mwronski.jsql.parser.dql.Condition;
 import com.mwronski.jsql.parser.dql.Select;
 import com.mwronski.jsql.recording.SqlRecorder;
@@ -26,7 +25,7 @@ public final class JSql {
 
     private final SqlGrammar grammar;
     private final SqlRecorder recorder = new SqlRecorder();
-    private SqlParser parser;
+    private Select select;
 
     /**
      * Create instance
@@ -47,7 +46,7 @@ public final class JSql {
      */
     public Select select(final Object... objects) {
         Select select = new Select(recorder, objects);
-        parser = select;
+        this.select = select;
         return select;
     }
 
@@ -102,7 +101,7 @@ public final class JSql {
      * @return
      */
     private <T, H extends SqlSelectBuilder> String asSQL(final H sqlCommandBuilder) {
-        new SqlSelectTreeWalker().walk(parser.getRoot(), sqlCommandBuilder);
+        new SqlSelectTreeWalker().walk(select.getStatement(), sqlCommandBuilder);
         return sqlCommandBuilder.asSQL().trim();
     }
 
@@ -140,7 +139,7 @@ public final class JSql {
     private <T, H extends SqlSelectBuilder> Query getQuery(final EntityManager entityManager, final Class<T> clazz,
             final H sqlCommandBuilder) {
         // build command
-        new SqlSelectTreeWalker().walk(parser.getRoot(), sqlCommandBuilder);
+        new SqlSelectTreeWalker().walk(select.getStatement(), sqlCommandBuilder);
         // build query
         Query query = null;
         if (grammar.isNative()) {

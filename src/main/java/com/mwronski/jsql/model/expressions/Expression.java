@@ -1,7 +1,5 @@
 package com.mwronski.jsql.model.expressions;
 
-import com.mwronski.jsql.model.SqlToken;
-
 /**
  * SQL expression
  * 
@@ -9,7 +7,7 @@ import com.mwronski.jsql.model.SqlToken;
  * @author Michal Wronski
  * 
  */
-public abstract class Expression extends SqlToken {
+public interface Expression {
 
     /**
      * Flag indicates whether expression should be omitted if it's value
@@ -17,5 +15,12 @@ public abstract class Expression extends SqlToken {
      * 
      * @return
      */
-    public abstract boolean isNullOmittable();
+    boolean isNullOmittable();
+
+    /**
+     * Check whether expression is evaluated as NULL
+     * 
+     * @return
+     */
+    boolean isNull();
 }

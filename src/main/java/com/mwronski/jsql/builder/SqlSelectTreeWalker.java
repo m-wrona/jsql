@@ -1,14 +1,11 @@
 package com.mwronski.jsql.builder;
 
-import static com.mwronski.jsql.builder.SqlTreeUtil.*;
-
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
-import com.mwronski.jsql.model.*;
-import com.mwronski.jsql.model.Noun.Nouns;
-import com.mwronski.jsql.model.expressions.Order;
+import com.mwronski.jsql.model.Table;
+import com.mwronski.jsql.model.dql.JoinStatement;
+import com.mwronski.jsql.model.dql.SelectStatement;
 
 /**
  * Walker visiting tokens in SELECT statement and pass them to given
@@ -21,81 +18,34 @@ import com.mwronski.jsql.model.expressions.Order;
  */
 public final class SqlSelectTreeWalker {
 
-    public void walk(final SqlToken selectToken, final SqlSelectBuilder selectBuilder) {
-        Map<Nouns, List<Noun>> nouns = groupByNouns(selectToken, Nouns.SELECT, Nouns.FROM, Nouns.JOIN, Nouns.WHERE,
-                Nouns.ORDER_BY, Nouns.GROUP_BY);
-        walkSelect(selectBuilder, getFirst(nouns.get(Nouns.SELECT)));
-        walkFrom(selectBuilder, getFirst(nouns.get(Nouns.FROM)));
-        walkJoin(selectBuilder, nouns.get(Nouns.JOIN));
-        walkWhere(selectBuilder, getFirst(nouns.get(Nouns.WHERE)));
-        walkOrderBy(selectBuilder, getFirst(nouns.get(Nouns.ORDER_BY)));
-        walkGroupBy(selectBuilder, getFirst(nouns.get(Nouns.GROUP_BY)));
+    public void walk(final SelectStatement select, final SqlSelectBuilder selectBuilder) {
+        walkSelectColumns(selectBuilder, select);
+        selectBuilder.handleFrom(select.getFrom());
+        for (JoinStatement join : select.getJoins()) {
+            selectBuilder.handleJoin(join.getTable(), join.getDirection(), join.getType(), join.getOn());
+        }
+        if (select.getWhere() != null) {
+            selectBuilder.handleWhere(select.getWhere());
+        }
+        selectBuilder.handleOrderBy(select.getOrder());
+        selectBuilder.handleGroupBy(select.getGroupedBy());
     }
 
-    private void walkSelect(final SqlSelectBuilder selectBuilder, final Noun select) {
-        int fromIndex = indexOf(select.getChildren(), Nouns.FROM);
-        List<Variable> columns = new ArrayList<Variable>();
+    /**
+     * Check which columns from which tables should be put into SELECT statement
+     * 
+     * @param selectBuilder
+     * @param select
+     */
+    private void walkSelectColumns(final SqlSelectBuilder selectBuilder, SelectStatement select) {
         List<Table> tables = new ArrayList<Table>();
-        if (fromIndex > 0) {
-            for (SqlToken token : select.getChildren().subList(0, fromIndex)) {
-                if (token instanceof Variable) {
-                    columns.add((Variable) token);
-                } else if (token instanceof Table) {
-                    tables.add((Table) token);
-                }
+        tables.addAll(select.getSelectedTables());
+        if (select.getSelectedColumns().isEmpty() && select.getSelectedTables().isEmpty()) {
+            tables.addAll(select.getFrom());
+            for (JoinStatement join : select.getJoins()) {
+                tables.add(join.getTable());
             }
         }
-        selectBuilder.handleSelect(tables, columns, indexOf(select.getChildren(), Nouns.DISTINCT) != -1,
-                indexOf(select.getChildren(), Nouns.COUNT) != -1);
+        selectBuilder.handleSelect(tables, select.getSelectedColumns(), select.isDistinct(), select.isCount());
     }
-
-    private void walkFrom(final SqlSelectBuilder selectBuilder, final Noun from) {
-        List<Table> tables = new ArrayList<Table>();
-        for (SqlToken table : from) {
-            tables.add((Table) table);
-        }
-        selectBuilder.handleFrom(tables);
-    }
-
-    private void walkJoin(final SqlSelectBuilder selectBuilder, final List<Noun> joins) {
-        if (joins == null) {
-            return;
-        }
-        for (Noun join : joins) {
-            Table table = find(join.getChildren(), Table.class).get(0);
-            boolean isLeft = indexOf(join.getChildren(), Nouns.LEFT) != -1;
-            boolean isRight = indexOf(join.getChildren(), Nouns.RIGHT) != -1;
-            Boolean leftJoin = (!isLeft && !isRight) ? null : isLeft;
-            boolean isOuter = indexOf(join.getChildren(), Nouns.OUTER) != -1;
-            boolean isInner = indexOf(join.getChildren(), Nouns.INNER) != -1;
-            Boolean innerJoin = (!isInner && !isOuter) ? null : isInner;
-            int onIndex = indexOf(join.getChildren(), Nouns.ON);
-            SqlToken onCondition = join.getChildren().subList(onIndex + 1, join.getChildren().size()).get(0);
-            selectBuilder.handleJoin(table, leftJoin, innerJoin, onCondition);
-        }
-    }
-
-    private void walkWhere(final SqlSelectBuilder selectBuilder, final Noun where) {
-        if (where == null) {
-            return;
-        }
-        selectBuilder.handleWhere(where.getChildren().get(0));
-    }
-
-    private void walkOrderBy(final SqlSelectBuilder selectBuilder, final Noun orderBy) {
-        if (orderBy == null) {
-            return;
-        }
-        Order order = (Order) orderBy.getChildren().get(0);
-        selectBuilder.handleOrderBy(order.getVars());
-    }
-
-    private void walkGroupBy(final SqlSelectBuilder selectBuilder, final Noun groupBy) {
-        if (groupBy == null) {
-            return;
-        }
-        Columns columns = (Columns) groupBy.getChildren().get(0);
-        selectBuilder.handleGroupBy(columns.getColumns());
-    }
-
 }

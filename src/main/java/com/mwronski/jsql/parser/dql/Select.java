@@ -2,26 +2,24 @@ package com.mwronski.jsql.parser.dql;
 
 import java.util.List;
 
-import com.mwronski.jsql.model.*;
-import com.mwronski.jsql.model.Noun.Nouns;
-import com.mwronski.jsql.model.expressions.Order;
-import com.mwronski.jsql.parser.SqlParser;
+import com.mwronski.jsql.model.Table;
+import com.mwronski.jsql.model.Variable;
+import com.mwronski.jsql.model.dql.JoinStatement;
+import com.mwronski.jsql.model.dql.SelectStatement;
 import com.mwronski.jsql.recording.SqlRecorder;
 
 /**
  * SQL SELECT command parser. Statement in built in the chain based on current
  * instance.
  * 
- * TODO refactoring - add checking grammar rules
- * 
  * @date 25-02-2013
  * @author Michal Wronski
  * 
  */
-public final class Select implements SqlParser {
+public final class Select {
 
     private final SqlRecorder recorder;
-    private final Noun selectNoun;
+    private final SelectStatement statement = new SelectStatement();
 
     /**
      * Create new select statement
@@ -33,12 +31,11 @@ public final class Select implements SqlParser {
      */
     public Select(final SqlRecorder recorder, Object... tables) {
         this.recorder = recorder;
-        selectNoun = new Noun(Nouns.SELECT);
         for (Table table : recorder.tables(tables)) {
-            selectNoun.add(table);
+            statement.getSelectedTables().add(table);
         }
         List<Variable> columns = recorder.variables();
-        selectNoun.addAll(columns);
+        statement.getSelectedColumns().addAll(columns);
     }
 
     /**
@@ -53,23 +50,49 @@ public final class Select implements SqlParser {
     public Select from(final Object o, final Object... others) {
         List<Table> fromTables = recorder.tables(o, others);
         if (fromTables.isEmpty()) {
-            throw new RuntimeException("Didn't found SQL tokens in FROM cluasule");
+            throw new RuntimeException("Didn't found SQL tables in FROM statement");
         }
-        Noun fromNoun = new Noun(Nouns.FROM);
-        fromNoun.addAll(fromTables);
-        selectNoun.add(fromNoun);
+        statement.getFrom().addAll(fromTables);
         return this;
     }
 
     /**
      * JOIN clause
      * 
-     * @param o
-     *            which data will be joined to SELECT
-     * @return the same instance
+     * @return join parser
      */
-    public Join join(final Object o) {
-        return new Join(this, o);
+    public Join join() {
+        return new Join(recorder, this);
+    }
+
+    /**
+     * JOIN clause
+     * 
+     * @param table
+     *            table to be joined
+     * @return join parser
+     */
+    public Join join(Object table) {
+        Join join = new Join(recorder, this);
+        join.table(table);
+        return join;
+    }
+
+    /**
+     * JOIN clause
+     * 
+     * @param table
+     *            table to be joined
+     * @param direction
+     *            direction of joined table
+     * @param type
+     *            type of made join
+     * @return join parser
+     */
+    public Join join(Object table, JoinStatement.Direction direction, JoinStatement.Type type) {
+        Join join = new Join(recorder, this, direction, type);
+        join.table(table);
+        return join;
     }
 
     /**
@@ -77,10 +100,10 @@ public final class Select implements SqlParser {
      * 
      * @param o
      *            which data will be joined to SELECT
-     * @return the same instance
+     * @return join parser
      */
     public Join leftJoin(final Object o) {
-        return new Join(this, o, new Noun(Nouns.LEFT));
+        return join(o, JoinStatement.Direction.LEFT, JoinStatement.Type.NONE);
     }
 
     /**
@@ -88,10 +111,10 @@ public final class Select implements SqlParser {
      * 
      * @param o
      *            which data will be joined to SELECT
-     * @return the same instance
+     * @return join parser
      */
     public Join leftOuterJoin(final Object o) {
-        return new Join(this, o, new Noun(Nouns.LEFT), new Noun(Nouns.OUTER));
+        return join(o, JoinStatement.Direction.LEFT, JoinStatement.Type.OUTER);
     }
 
     /**
@@ -99,10 +122,10 @@ public final class Select implements SqlParser {
      * 
      * @param o
      *            which data will be joined to SELECT
-     * @return the same instance
+     * @return join parser
      */
     public Join leftInnerJoin(final Object o) {
-        return new Join(this, o, new Noun(Nouns.LEFT), new Noun(Nouns.INNER));
+        return join(o, JoinStatement.Direction.LEFT, JoinStatement.Type.INNER);
     }
 
     /**
@@ -110,10 +133,10 @@ public final class Select implements SqlParser {
      * 
      * @param o
      *            which data will be joined to SELECT
-     * @return the same instance
+     * @return join parser
      */
     public Join rightJoin(final Object o) {
-        return new Join(this, o, new Noun(Nouns.RIGHT));
+        return join(o, JoinStatement.Direction.RIGHT, JoinStatement.Type.NONE);
     }
 
     /**
@@ -121,10 +144,10 @@ public final class Select implements SqlParser {
      * 
      * @param o
      *            which data will be joined to SELECT
-     * @return the same instance
+     * @return join parser
      */
     public Join rightOuterJoin(final Object o) {
-        return new Join(this, o, new Noun(Nouns.RIGHT), new Noun(Nouns.OUTER));
+        return join(o, JoinStatement.Direction.RIGHT, JoinStatement.Type.OUTER);
     }
 
     /**
@@ -132,52 +155,49 @@ public final class Select implements SqlParser {
      * 
      * @param o
      *            which data will be joined to SELECT
-     * @return the same instance
+     * @return join parser
      */
     public Join rightInnerJoin(final Object o) {
-        return new Join(this, o, new Noun(Nouns.RIGHT), new Noun(Nouns.INNER));
+        return join(o, JoinStatement.Direction.RIGHT, JoinStatement.Type.INNER);
     }
 
     /**
      * WHERE clause
      * 
-     * @param where
-     *            condition for SELECT statement
+     * @return where parser
+     */
+    public Where where() {
+        return new Where(recorder, statement);
+    }
+
+    /**
+     * Add SELECT WHERE condition
+     * 
+     * @param whereCondition
      * @return the same instance
      */
-    public Select where(final Condition where) {
-        if (!where.isNull()) {
-            Noun whereNoun = new Noun(Nouns.WHERE);
-            selectNoun.add(whereNoun);
-            whereNoun.add(where.getRoot());
-        }
+    public Select where(Condition whereCondition) {
+        statement.setWhere(whereCondition.getChain());
         return this;
     }
 
     /**
      * Sort select by given criteria
      * 
-     * @return the same instance
+     * @return order by parser
      */
     public Order orderBy() {
-        Noun orderBy = new Noun(Nouns.ORDER_BY);
-        selectNoun.add(orderBy);
-        Order order = new Order(recorder);
-        orderBy.add(order);
+        Order order = new Order(recorder, statement);
         return order;
     }
 
     /**
      * Group by given columns
      * 
-     * @return columns by which grouping can be made
+     * @return group by parser
      */
-    public Columns groupBy() {
-        Noun groupBy = new Noun(Nouns.GROUP_BY);
-        selectNoun.add(groupBy);
-        Columns groupByColumns = new Columns(recorder);
-        groupBy.add(groupByColumns);
-        return groupByColumns;
+    public GroupBy groupBy() {
+        return new GroupBy(recorder, statement);
     }
 
     /**
@@ -186,7 +206,7 @@ public final class Select implements SqlParser {
      * @return the same instance
      */
     public Select count() {
-        selectNoun.add(new Noun(Nouns.COUNT));
+        statement.setCount(true);
         return this;
     }
 
@@ -196,25 +216,15 @@ public final class Select implements SqlParser {
      * @return the same instance
      */
     public Select distinct() {
-        selectNoun.addFirst(new Noun(Nouns.DISTINCT));
+        statement.setDistinct(true);
         return this;
     }
 
-    @Override
-    public SqlToken getRoot() {
-        return selectNoun;
+    public SelectStatement getStatement() {
+        return statement;
     }
 
-    /**
-     * Append new token into statement
-     * 
-     * @param sqlToken
-     */
-    void append(final SqlToken sqlToken) {
-        selectNoun.add(sqlToken);
-    }
-
-    protected SqlRecorder getRecorder() {
+    SqlRecorder getRecorder() {
         return recorder;
     }
 

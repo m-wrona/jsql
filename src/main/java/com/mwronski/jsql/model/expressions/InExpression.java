@@ -13,7 +13,7 @@ import com.mwronski.jsql.recording.SqlRecorder;
  * @author Michal Wronski
  * 
  */
-public final class Collection extends Expression {
+public final class InExpression implements Expression {
 
     public enum CollectionType {
         IN, NOT_IN
@@ -24,8 +24,8 @@ public final class Collection extends Expression {
     private final CollectionType type;
     private final boolean omittable;
 
-    public Collection(final SqlRecorder recorder, final Object param, final CollectionType type,
-            final boolean omittable, final Object[] values) {
+    public InExpression(final SqlRecorder recorder, final Object param, final CollectionType type,
+                        final boolean omittable, final Object[] values) {
         var = recorder.nextVariable();
         this.values = values != null && values.length > 0 ? Arrays.asList(values) : null;
         this.omittable = omittable;
@@ -53,7 +53,8 @@ public final class Collection extends Expression {
         return isNullOmittable() && isNull();
     }
 
-    private boolean isNull() {
+    @Override
+    public boolean isNull() {
         return values == null || values.size() == 0;
     }
 

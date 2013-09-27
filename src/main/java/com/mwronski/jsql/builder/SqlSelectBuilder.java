@@ -1,11 +1,12 @@
 package com.mwronski.jsql.builder;
 
 import java.util.List;
+import java.util.Map;
 
-import com.mwronski.jsql.model.SqlToken;
 import com.mwronski.jsql.model.Table;
 import com.mwronski.jsql.model.Variable;
-import com.mwronski.jsql.model.expressions.Order.VarItem;
+import com.mwronski.jsql.model.dql.JoinStatement;
+import com.mwronski.jsql.model.expressions.ExpressionChain;
 
 /**
  * Builder for SELECT statement
@@ -42,16 +43,15 @@ public interface SqlSelectBuilder extends SqlCommandBuilder {
      * Handle JOIN part of the statement
      * 
      * @param joinedTable
-     * @param left
-     *            flag indicates whether join is left(true) or right(false). If
-     *            null simple join is used.
-     * @param inner
-     *            flag indicates whether join is inner(true) or outer(false). If
-     *            null simple join is used.
+     * @param direction
+     *            direction of joined table
+     * @param type
+     *            type of made join
      * @param onCondition
      *            joining conditions
      */
-    void handleJoin(Table joinedTable, Boolean left, Boolean inner, SqlToken onCondition);
+    void handleJoin(Table joinedTable, JoinStatement.Direction direction, JoinStatement.Type type,
+            ExpressionChain onCondition);
 
     /**
      * Handle WHERE part of the statement
@@ -59,7 +59,7 @@ public interface SqlSelectBuilder extends SqlCommandBuilder {
      * @param where
      *            select conditions
      */
-    void handleWhere(SqlToken where);
+    void handleWhere(ExpressionChain where);
 
     /**
      * Handle ORDER BY part of the statement
@@ -67,7 +67,7 @@ public interface SqlSelectBuilder extends SqlCommandBuilder {
      * @param variables
      *            variables with set order
      */
-    void handleOrderBy(List<VarItem> variables);
+    void handleOrderBy(Map<Variable, Boolean> variables);
 
     /**
      * Handle GROUP BY part of the statement
