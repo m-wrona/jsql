@@ -5,14 +5,13 @@ import java.util.List;
 import java.util.Map;
 
 import com.mwronski.jsql.builder.SqlSelectBuilder;
-import com.mwronski.jsql.grammar.GrammarUtil;
 import com.mwronski.jsql.model.Table;
 import com.mwronski.jsql.model.Variable;
 import com.mwronski.jsql.model.dql.JoinStatement;
 import com.mwronski.jsql.model.dql.SelectStatement;
-import com.mwronski.jsql.model.expressions.InExpression;
 import com.mwronski.jsql.model.expressions.Expression;
 import com.mwronski.jsql.model.expressions.ExpressionChain;
+import com.mwronski.jsql.model.expressions.InExpression;
 import com.mwronski.jsql.model.expressions.Relation;
 import com.mwronski.jsql.model.expressions.Relation.RelationType;
 
@@ -43,21 +42,21 @@ public abstract class SQLSelectBuilder implements SqlSelectBuilder {
     @Override
     public String asSQL() {
         StringBuilder select = new StringBuilder();
-        select.append(Nouns.SELECT).append(GrammarUtil.SPACE).append(sqlColumns);
-        select.append(GrammarUtil.SPACE);
-        select.append(Nouns.FROM).append(GrammarUtil.SPACE).append(sqlTables);
+        select.append(Nouns.SELECT).append(Nouns.SPACE).append(sqlColumns);
+        select.append(Nouns.SPACE);
+        select.append(Nouns.FROM).append(Nouns.SPACE).append(sqlTables);
         select.append(sqlJoins);
         if (sqlWhere.length() > 0) {
-            select.append(GrammarUtil.SPACE);
-            select.append(Nouns.WHERE).append(GrammarUtil.SPACE).append(sqlWhere);
+            select.append(Nouns.SPACE);
+            select.append(Nouns.WHERE).append(Nouns.SPACE).append(sqlWhere);
         }
         if (sqlOrderBy.length() > 0) {
-            select.append(GrammarUtil.SPACE);
-            select.append(GrammarUtil.ORDER_BY).append(GrammarUtil.SPACE).append(sqlOrderBy);
+            select.append(Nouns.SPACE);
+            select.append(Nouns.ORDER_BY).append(Nouns.SPACE).append(sqlOrderBy);
         }
         if (sqlGroupBy.length() > 0) {
-            select.append(GrammarUtil.SPACE);
-            select.append(GrammarUtil.GROUP_BY).append(GrammarUtil.SPACE).append(sqlGroupBy);
+            select.append(Nouns.SPACE);
+            select.append(Nouns.GROUP_BY).append(Nouns.SPACE).append(sqlGroupBy);
         }
         return select.toString();
     }
@@ -84,11 +83,11 @@ public abstract class SQLSelectBuilder implements SqlSelectBuilder {
         }
         // append distinct and count
         if (distinct && sqlColumns.length() > 0) {
-            sqlColumns.insert(0, Nouns.DISTINCT + GrammarUtil.SPACE);
+            sqlColumns.insert(0, Nouns.DISTINCT.toString() + Nouns.SPACE);
         }
         if (count) {
             appendElementBreak(sqlColumns);
-            sqlColumns.append(GrammarUtil.COUNT_ALL);
+            sqlColumns.append(Nouns.COUNT_ALL);
         }
     }
 
@@ -120,7 +119,7 @@ public abstract class SQLSelectBuilder implements SqlSelectBuilder {
      */
     protected void appendSelectAllFromTable(final StringBuilder sql, final Table table) {
         appendElementBreak(sql);
-        sql.append(getTableName(table)).append(GrammarUtil.DOT).append(GrammarUtil.ALL);
+        sql.append(getTableName(table)).append(Nouns.DOT).append(Nouns.ALL);
     }
 
     /**
@@ -153,7 +152,7 @@ public abstract class SQLSelectBuilder implements SqlSelectBuilder {
      */
     protected final void appendElementBreak(final StringBuilder string) {
         if (string.length() > 0) {
-            string.append(GrammarUtil.COMMA).append(GrammarUtil.SPACE);
+            string.append(Nouns.COMMA).append(Nouns.SPACE);
         }
     }
 
@@ -161,14 +160,14 @@ public abstract class SQLSelectBuilder implements SqlSelectBuilder {
     public void handleJoin(final Table joinedTable, JoinStatement.Direction direction, JoinStatement.Type type,
             ExpressionChain onCondition) {
         if (direction != JoinStatement.Direction.NONE) {
-            sqlJoins.append(GrammarUtil.SPACE).append(direction);
+            sqlJoins.append(Nouns.SPACE).append(direction);
         }
         if (type != JoinStatement.Type.NONE) {
-            sqlJoins.append(GrammarUtil.SPACE).append(type);
+            sqlJoins.append(Nouns.SPACE).append(type);
         }
-        sqlJoins.append(GrammarUtil.SPACE).append(Nouns.JOIN);
-        sqlJoins.append(GrammarUtil.SPACE).append(getTableDefinitionName(joinedTable));
-        sqlJoins.append(GrammarUtil.SPACE).append(Nouns.ON);
+        sqlJoins.append(Nouns.SPACE).append(Nouns.JOIN);
+        sqlJoins.append(Nouns.SPACE).append(getTableDefinitionName(joinedTable));
+        sqlJoins.append(Nouns.SPACE).append(Nouns.ON);
         appendConditions(sqlJoins, onCondition);
     }
 
@@ -191,15 +190,15 @@ public abstract class SQLSelectBuilder implements SqlSelectBuilder {
                 continue;
             }
             if (sqlCondition.length() > 0) {
-                sqlCondition.append(GrammarUtil.SPACE);
+                sqlCondition.append(Nouns.SPACE);
             }
             if (!first) {
-                sqlCondition.append(entry.getValue()).append(GrammarUtil.SPACE);
+                sqlCondition.append(entry.getValue()).append(Nouns.SPACE);
             }
             if (token instanceof ExpressionChain) {
                 StringBuilder subCondition = new StringBuilder();
                 appendConditions(subCondition, (ExpressionChain) token);
-                sqlCondition.append(GrammarUtil.LEFT_BRACKET).append(subCondition).append(GrammarUtil.RIGHT_BRACKET);
+                sqlCondition.append(Nouns.LEFT_BRACKET).append(subCondition).append(Nouns.RIGHT_BRACKET);
             } else if (token instanceof Relation) {
                 appendRelation(sqlCondition, (Relation) token);
             } else if (token instanceof InExpression) {
@@ -220,22 +219,22 @@ public abstract class SQLSelectBuilder implements SqlSelectBuilder {
      */
     private void appendInExpression(final StringBuilder sqlCondition, final InExpression inExpression) {
         sqlCondition.append(getVariableName(inExpression.getVar()));
-        sqlCondition.append(GrammarUtil.SPACE);
+        sqlCondition.append(Nouns.SPACE);
         if (inExpression.getValues() != null) {
             sqlCondition.append(inExpression.getType());
-            sqlCondition.append(GrammarUtil.SPACE);
-            sqlCondition.append(GrammarUtil.LEFT_BRACKET);
+            sqlCondition.append(Nouns.SPACE);
+            sqlCondition.append(Nouns.LEFT_BRACKET);
             int paramIndex = getUniqueParamIndex();
             params.put(paramIndex, inExpression.getValues());
-            sqlCondition.append(GrammarUtil.PARAM + paramIndex);
-            sqlCondition.append(GrammarUtil.RIGHT_BRACKET);
+            sqlCondition.append(Nouns.PARAM.toString() + paramIndex);
+            sqlCondition.append(Nouns.RIGHT_BRACKET);
         } else {
             switch (inExpression.getType()) {
             case IN:
-                sqlCondition.append(GrammarUtil.IS_NULL);
+                sqlCondition.append(Nouns.IS_NULL);
                 break;
             case NOT_IN:
-                sqlCondition.append(GrammarUtil.IS_NOT_NULL);
+                sqlCondition.append(Nouns.IS_NOT_NULL);
             }
         }
     }
@@ -277,7 +276,7 @@ public abstract class SQLSelectBuilder implements SqlSelectBuilder {
         } else {
             params.put(paramIndex, value);
         }
-        sql.append(GrammarUtil.PARAM + paramIndex);
+        sql.append(Nouns.PARAM.toString() + paramIndex);
     }
 
     /**
@@ -307,29 +306,29 @@ public abstract class SQLSelectBuilder implements SqlSelectBuilder {
         switch (type) {
         case EQ:
             if (valueNotNull) {
-                sql.append(GrammarUtil.EQUALS);
+                sql.append(Nouns.EQUALS);
             } else {
-                sql.append(GrammarUtil.SPACE).append(GrammarUtil.IS_NULL);
+                sql.append(Nouns.SPACE).append(Nouns.IS_NULL);
             }
             break;
         case NEQ:
             if (valueNotNull) {
-                sql.append(GrammarUtil.NOT_EQUALS);
+                sql.append(Nouns.NOT_EQUALS);
             } else {
-                sql.append(GrammarUtil.SPACE).append(GrammarUtil.IS_NOT_NULL);
+                sql.append(Nouns.SPACE).append(Nouns.IS_NOT_NULL);
             }
             break;
         case LT:
-            sql.append(GrammarUtil.LESS);
+            sql.append(Nouns.LESS);
             break;
         case EL:
-            sql.append(GrammarUtil.LESS_EQAULS);
+            sql.append(Nouns.LESS_EQAULS);
             break;
         case GT:
-            sql.append(GrammarUtil.GREATER);
+            sql.append(Nouns.GREATER);
             break;
         case EG:
-            sql.append(GrammarUtil.GREATER_EQUALS);
+            sql.append(Nouns.GREATER_EQUALS);
             break;
         case REGEX:
             sql.append(getRegExpWildcardMark());
@@ -361,7 +360,7 @@ public abstract class SQLSelectBuilder implements SqlSelectBuilder {
             appendElementBreak(sqlOrderBy);
             sqlOrderBy.append(getVariableName(var.getKey()));
             if (var.getValue().equals(SelectStatement.DESC)) {
-                sqlOrderBy.append(GrammarUtil.SPACE).append(GrammarUtil.DESC);
+                sqlOrderBy.append(Nouns.SPACE).append(Nouns.DESC);
             }
         }
     }

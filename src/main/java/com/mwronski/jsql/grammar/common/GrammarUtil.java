@@ -1,4 +1,4 @@
-package com.mwronski.jsql.grammar;
+package com.mwronski.jsql.grammar.common;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -8,6 +8,7 @@ import java.util.List;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 
+import com.mwronski.jsql.grammar.common.Nouns;
 import com.mwronski.jsql.model.Table;
 import com.mwronski.jsql.model.Variable;
 
@@ -19,26 +20,6 @@ import com.mwronski.jsql.model.Variable;
  * 
  */
 public final class GrammarUtil {
-
-    public static final String SPACE = " ";
-    public static final String COMMA = ",";
-    public static final String ALL = "*";
-    public static final String DOT = ".";
-    public static final String COUNT_ALL = "COUNT(*)";
-    public static final String ORDER_BY = "ORDER BY";
-    public static final String DESC = "DESC";
-    public static final String GROUP_BY = "GROUP BY";
-    public static final String LEFT_BRACKET = "(";
-    public static final String RIGHT_BRACKET = ")";
-    public static final String PARAM = "?";
-    public static final String IS_NULL = "IS NULL";
-    public static final String IS_NOT_NULL = "IS NOT NULL";
-    public static final String EQUALS = "=";
-    public static final String NOT_EQUALS = "!=";
-    public static final String LESS = "<";
-    public static final String LESS_EQAULS = "<=";
-    public static final String GREATER = ">";
-    public static final String GREATER_EQUALS = ">=";
 
     private GrammarUtil() {
         // no instances
@@ -100,9 +81,9 @@ public final class GrammarUtil {
             final boolean showTableName) {
         StringBuilder varName = new StringBuilder();
         if (variable.getTable().getAlias() != null) {
-            varName.append(variable.getTable().getAlias()).append(DOT);
+            varName.append(variable.getTable().getAlias()).append(Nouns.DOT);
         } else if (showTableName) {
-            varName.append(getTableName(variable.getTable())).append(DOT);
+            varName.append(getTableName(variable.getTable())).append(Nouns.DOT);
         }
         varName.append(getFieldName(variable, skipAnnotations));
 
@@ -133,28 +114,9 @@ public final class GrammarUtil {
     public static String getTableDefinitionName(final Table table) {
         StringBuilder tableName = new StringBuilder(getTableName(table));
         if (table.getAlias() != null) {
-            tableName.append(SPACE).append(table.getAlias());
+            tableName.append(Nouns.SPACE).append(table.getAlias());
         }
         return tableName.toString();
-    }
-
-    /**
-     * Normalize values in given collection. If element is an ENUM, convert it
-     * to String
-     * 
-     * @param values
-     * @return
-     */
-    public static List<Object> normalizeValues(final Collection<Object> values) {
-        List<Object> normalizedValues = new ArrayList<Object>();
-        for (Object value : values) {
-            if (value instanceof Enum) {
-                normalizedValues.add(value.toString());
-            } else {
-                normalizedValues.add(value);
-            }
-        }
-        return normalizedValues;
     }
 
 }

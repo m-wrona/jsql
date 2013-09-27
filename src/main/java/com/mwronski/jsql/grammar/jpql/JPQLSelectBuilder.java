@@ -3,7 +3,7 @@ package com.mwronski.jsql.grammar.jpql;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.mwronski.jsql.grammar.GrammarUtil;
+import com.mwronski.jsql.grammar.common.GrammarUtil;
 import com.mwronski.jsql.grammar.common.Nouns;
 import com.mwronski.jsql.grammar.common.SQLSelectBuilder;
 import com.mwronski.jsql.model.Table;
@@ -42,7 +42,7 @@ final class JPQLSelectBuilder extends SQLSelectBuilder {
         if (table.getAlias() != null) {
             return super.getTableDefinitionName(table);
         }
-        return GrammarUtil.getTableName(table) + GrammarUtil.SPACE + GrammarUtil.getTableName(table);
+        return GrammarUtil.getTableName(table) + Nouns.SPACE + GrammarUtil.getTableName(table);
     }
 
     @Override
@@ -58,32 +58,32 @@ final class JPQLSelectBuilder extends SQLSelectBuilder {
     @Override
     public String asSQL() {
         StringBuilder select = new StringBuilder();
-        select.append(Nouns.SELECT).append(GrammarUtil.SPACE).append(sqlColumns);
-        select.append(GrammarUtil.SPACE);
-        select.append(Nouns.FROM).append(GrammarUtil.SPACE).append(sqlTables);
+        select.append(Nouns.SELECT).append(Nouns.SPACE).append(sqlColumns);
+        select.append(Nouns.SPACE);
+        select.append(Nouns.FROM).append(Nouns.SPACE).append(sqlTables);
         select.append(sqlJoins);
         boolean hasJoins = sqlJoinConditions.length() > 0;
         boolean hasConditions = sqlWhere.length() > 0;
         if (hasConditions || hasJoins) {
-            select.append(GrammarUtil.SPACE).append(Nouns.WHERE);
+            select.append(Nouns.SPACE).append(Nouns.WHERE);
             if (hasJoins) {
-                select.append(GrammarUtil.SPACE).append(GrammarUtil.LEFT_BRACKET).append(sqlJoinConditions)
-                        .append(GrammarUtil.RIGHT_BRACKET);
+                select.append(Nouns.SPACE).append(Nouns.LEFT_BRACKET).append(sqlJoinConditions)
+                        .append(Nouns.RIGHT_BRACKET);
                 if (hasConditions) {
-                    select.append(GrammarUtil.SPACE).append(Nouns.AND);
+                    select.append(Nouns.SPACE).append(Nouns.AND);
                 }
             }
             if (hasConditions) {
-                select.append(GrammarUtil.SPACE).append(sqlWhere);
+                select.append(Nouns.SPACE).append(sqlWhere);
             }
         }
         if (sqlOrderBy.length() > 0) {
-            select.append(GrammarUtil.SPACE);
-            select.append(GrammarUtil.ORDER_BY).append(GrammarUtil.SPACE).append(sqlOrderBy);
+            select.append(Nouns.SPACE);
+            select.append(Nouns.ORDER_BY).append(Nouns.SPACE).append(sqlOrderBy);
         }
         if (sqlGroupBy.length() > 0) {
-            select.append(GrammarUtil.SPACE);
-            select.append(GrammarUtil.GROUP_BY).append(GrammarUtil.SPACE).append(sqlGroupBy);
+            select.append(Nouns.SPACE);
+            select.append(Nouns.GROUP_BY).append(Nouns.SPACE).append(sqlGroupBy);
         }
         return select.toString();
     }
