@@ -251,10 +251,26 @@ public abstract class AbstractSelectTestSuite extends JSqlTestCase {
     }
 
     @Test
+    public final void testSelectWhereGroupByOrderBy_FlatAPI() {
+        Entity entity = sql.alias(Entity.class, "e");
+        sql.select(entity.getString()).from(entity).where().eq(entity.getId(), 5l).groupBy().column(entity.getString())
+                .orderBy().asc(entity.getString());
+        verifySelectWhereGroupByOrderBy(sql);
+    }
+
+    @Test
     public final void testSelectWhereOrderByGroupBy() {
         Entity entity = sql.alias(Entity.class, "e");
         sql.select(entity.getString()).from(entity).where(sql.cond().eq(entity.getId(), 5l)).orderBy()
                 .asc(entity.getString()).groupBy().column(entity.getString());
+        verifySelectWhereGroupByOrderBy(sql);
+    }
+
+    @Test
+    public final void testSelectWhereOrderByGroupBy_FlatAPI() {
+        Entity entity = sql.alias(Entity.class, "e");
+        sql.select(entity.getString()).from(entity).where().eq(entity.getId(), 5l).orderBy().asc(entity.getString())
+                .groupBy().column(entity.getString());
         verifySelectWhereGroupByOrderBy(sql);
     }
 
