@@ -4,7 +4,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.mwronski</groupId>
     <artifactId>jsql</artifactId>
-    <version>1.0.0</version>
+    <version>1.1.0</version>
     <packaging>jar</packaging>
     <name>jsql</name>
     <url>https://github.com/m-wrona/jsql</url>
