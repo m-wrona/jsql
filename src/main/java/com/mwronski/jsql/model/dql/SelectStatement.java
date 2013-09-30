@@ -19,12 +19,12 @@ public final class SelectStatement {
 
     public static final boolean ASC = false;
     public static final boolean DESC = true;
-    private List<Variable> selectedColumns = new ArrayList<Variable>();
-    private List<Table> selectedTables = new ArrayList<Table>();
-    private List<Table> from = new ArrayList<Table>();
-    private Map<Variable, Boolean> variablesOrder = new LinkedHashMap<Variable, Boolean>();
-    private List<Variable> groupedBy = new ArrayList<Variable>();
-    private List<JoinStatement> joins = new ArrayList<JoinStatement>();
+    private final List<Variable> selectedColumns = new ArrayList<Variable>();
+    private final List<Table> selectedTables = new ArrayList<Table>();
+    private final List<Table> from = new ArrayList<Table>();
+    private final Map<Variable, Boolean> variablesOrder = new LinkedHashMap<Variable, Boolean>();
+    private final List<Variable> groupedBy = new ArrayList<Variable>();
+    private final List<JoinStatement> joins = new ArrayList<JoinStatement>();
     private boolean distinct = false;
     private ExpressionChain where;
     private boolean count = false;

@@ -19,8 +19,7 @@ public final class Where extends Condition {
      * @return order by parser
      */
     public Order orderBy() {
-        Order order = new Order(getRecorder(), select);
-        return order;
+        return new Order(getRecorder(), select);
     }
 
     /**

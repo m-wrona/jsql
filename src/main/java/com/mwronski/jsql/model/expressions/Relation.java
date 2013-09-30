@@ -13,7 +13,7 @@ import com.mwronski.jsql.recording.SqlRecorder;
 public final class Relation implements Expression {
 
     public enum RelationType {
-        EQ, NEQ, EL, EG, GT, LT, REGEX;
+        EQ, NEQ, EL, EG, GT, LT, REGEX
     }
 
     private final Variable var;
@@ -61,10 +61,7 @@ public final class Relation implements Expression {
 
     @Override
     public boolean isNull() {
-        if (varValue != null) {
-            return false;
-        }
-        return value == null;
+        return varValue ==null &&  value == null;
     }
 
     public boolean shouldBeOmitted() {

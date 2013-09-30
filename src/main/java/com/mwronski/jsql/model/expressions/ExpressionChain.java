@@ -15,7 +15,7 @@ public class ExpressionChain implements Expression {
         AND, OR
     }
 
-    private Map<Expression, Type> conditions = new LinkedHashMap<Expression, Type>();
+    private final Map<Expression, Type> conditions = new LinkedHashMap<Expression, Type>();
 
     public void add(Type type, Expression expression) {
         conditions.put(expression, type);

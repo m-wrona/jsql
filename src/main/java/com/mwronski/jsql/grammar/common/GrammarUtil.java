@@ -53,10 +53,9 @@ public final class GrammarUtil {
      * @param string
      * @return
      */
-    private static String normalizeSpelling(final String string) {
-        String normalizedString = string;
-        char firstLetterLower = Character.toLowerCase(normalizedString.charAt(0));
-        String restString = string.length() > 1 ? normalizedString.substring(1) : "";
+    private static String normalizeSpelling( String string) {
+        char firstLetterLower = Character.toLowerCase(string.charAt(0));
+        String restString = string.length() > 1 ? string.substring(1) : "";
         return firstLetterLower + restString;
     }
 

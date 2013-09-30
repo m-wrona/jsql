@@ -38,7 +38,7 @@ public final class TestDB {
         return entityManagerFactory.createEntityManager();
     }
 
-    private static final void initEntityManagerFactory() {
+    private static void initEntityManagerFactory() {
         if (entityManagerFactory == null) {
             Map<String, String> factoryProperties = new HashMap<String, String>();
             factoryProperties.put("hibernate.connection.driver_class", DB_DRIVER);

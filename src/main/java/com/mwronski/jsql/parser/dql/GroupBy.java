@@ -21,8 +21,7 @@ public final class GroupBy {
      * @return order by parser
      */
     public Order orderBy() {
-        Order order = new Order(recorder, statement);
-        return order;
+        return new Order(recorder, statement);
     }
 
     /**

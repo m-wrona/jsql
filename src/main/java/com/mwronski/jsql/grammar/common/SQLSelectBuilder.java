@@ -226,7 +226,7 @@ public abstract class SQLSelectBuilder implements SqlSelectBuilder {
             sqlCondition.append(Nouns.LEFT_BRACKET);
             int paramIndex = getUniqueParamIndex();
             params.put(paramIndex, inExpression.getValues());
-            sqlCondition.append(Nouns.PARAM.toString() + paramIndex);
+            sqlCondition.append(Nouns.PARAM).append(paramIndex);
             sqlCondition.append(Nouns.RIGHT_BRACKET);
         } else {
             switch (inExpression.getType()) {
@@ -276,7 +276,7 @@ public abstract class SQLSelectBuilder implements SqlSelectBuilder {
         } else {
             params.put(paramIndex, value);
         }
-        sql.append(Nouns.PARAM.toString() + paramIndex);
+        sql.append(Nouns.PARAM).append(paramIndex);
     }
 
     /**

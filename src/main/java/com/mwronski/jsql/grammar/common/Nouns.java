@@ -13,7 +13,7 @@ public enum Nouns {
             "IS NOT NULL"), EQUALS("="), NOT_EQUALS("!="), LESS("<"), LESS_EQAULS("<="), GREATER(">"), GREATER_EQUALS(
             ">=");
 
-    private String sql;
+    private final String sql;
 
     private Nouns(String sql) {
         this.sql = sql;

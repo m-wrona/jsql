@@ -20,7 +20,7 @@ import com.mwronski.jsql.recording.SqlRecorder;
 public class Condition {
 
     private final SqlRecorder recorder;
-    private ExpressionChain chain = new ExpressionChain();
+    private final ExpressionChain chain = new ExpressionChain();
     private ExpressionChain.Type nextConditionType = ExpressionChain.Type.AND;
 
     /**

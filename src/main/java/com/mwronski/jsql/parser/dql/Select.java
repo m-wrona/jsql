@@ -187,8 +187,7 @@ public final class Select {
      * @return order by parser
      */
     public Order orderBy() {
-        Order order = new Order(recorder, statement);
-        return order;
+        return new Order(recorder, statement);
     }
 
     /**
