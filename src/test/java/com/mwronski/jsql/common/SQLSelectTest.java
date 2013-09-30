@@ -105,4 +105,10 @@ public abstract class SQLSelectTest extends AbstractSelectTestSuite {
         assertQueryExecutable(sql, em);
     }
 
+    @Override
+    protected void verifySelectWhereGroupByOrderBy(JSql sql) {
+        assertEquals("SELECT e.string FROM Entity e WHERE e.id=?1 GROUP BY e.string ORDER BY e.string", sql.toString());
+        assertQueryExecutable(sql, em);
+    }
+
 }

@@ -57,35 +57,16 @@ final class JPQLSelectBuilder extends SQLSelectBuilder {
 
     @Override
     public String asSQL() {
-        StringBuilder select = new StringBuilder();
-        select.append(Nouns.SELECT).append(Nouns.SPACE).append(sqlColumns);
-        select.append(Nouns.SPACE);
-        select.append(Nouns.FROM).append(Nouns.SPACE).append(sqlTables);
-        select.append(sqlJoins);
-        boolean hasJoins = sqlJoinConditions.length() > 0;
-        boolean hasConditions = sqlWhere.length() > 0;
-        if (hasConditions || hasJoins) {
-            select.append(Nouns.SPACE).append(Nouns.WHERE);
-            if (hasJoins) {
-                select.append(Nouns.SPACE).append(Nouns.LEFT_BRACKET).append(sqlJoinConditions)
-                        .append(Nouns.RIGHT_BRACKET);
-                if (hasConditions) {
-                    select.append(Nouns.SPACE).append(Nouns.AND);
-                }
+        if (sqlJoinConditions.length() > 0) {
+            // attach conditions from JOINs into WHERE
+            StringBuilder joinWhereCondition = new StringBuilder();
+            joinWhereCondition.append(Nouns.LEFT_BRACKET).append(sqlJoinConditions).append(Nouns.RIGHT_BRACKET);
+            if (sqlWhere.length() > 0) {
+                joinWhereCondition.append(Nouns.SPACE).append(Nouns.AND).append(Nouns.SPACE);
             }
-            if (hasConditions) {
-                select.append(Nouns.SPACE).append(sqlWhere);
-            }
+            sqlWhere.insert(0, joinWhereCondition);
         }
-        if (sqlOrderBy.length() > 0) {
-            select.append(Nouns.SPACE);
-            select.append(Nouns.ORDER_BY).append(Nouns.SPACE).append(sqlOrderBy);
-        }
-        if (sqlGroupBy.length() > 0) {
-            select.append(Nouns.SPACE);
-            select.append(Nouns.GROUP_BY).append(Nouns.SPACE).append(sqlGroupBy);
-        }
-        return select.toString();
+        return super.asSQL();
     }
 
     @Override

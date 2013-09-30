@@ -27,8 +27,8 @@ public final class SqlSelectTreeWalker {
         if (select.getWhere() != null) {
             selectBuilder.handleWhere(select.getWhere());
         }
-        selectBuilder.handleOrderBy(select.getOrder());
         selectBuilder.handleGroupBy(select.getGroupedBy());
+        selectBuilder.handleOrderBy(select.getOrder());
     }
 
     /**

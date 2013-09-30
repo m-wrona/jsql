@@ -50,13 +50,13 @@ public abstract class SQLSelectBuilder implements SqlSelectBuilder {
             select.append(Nouns.SPACE);
             select.append(Nouns.WHERE).append(Nouns.SPACE).append(sqlWhere);
         }
-        if (sqlOrderBy.length() > 0) {
-            select.append(Nouns.SPACE);
-            select.append(Nouns.ORDER_BY).append(Nouns.SPACE).append(sqlOrderBy);
-        }
         if (sqlGroupBy.length() > 0) {
             select.append(Nouns.SPACE);
             select.append(Nouns.GROUP_BY).append(Nouns.SPACE).append(sqlGroupBy);
+        }
+        if (sqlOrderBy.length() > 0) {
+            select.append(Nouns.SPACE);
+            select.append(Nouns.ORDER_BY).append(Nouns.SPACE).append(sqlOrderBy);
         }
         return select.toString();
     }
