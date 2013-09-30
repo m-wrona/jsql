@@ -1,10 +1,10 @@
 package com.mwronski.jsql.test;
 
-import static org.junit.Assert.assertNotNull;
+import com.mwronski.jsql.JSql;
 
 import javax.persistence.EntityManager;
 
-import com.mwronski.jsql.JSql;
+import static org.junit.Assert.assertNotNull;
 
 /**
  * Generic functions related with tests

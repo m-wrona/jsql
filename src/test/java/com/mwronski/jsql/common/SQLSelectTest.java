@@ -1,10 +1,10 @@
 package com.mwronski.jsql.common;
 
-import static com.mwronski.jsql.test.TestUtil.assertQueryExecutable;
-import static junit.framework.Assert.assertEquals;
-
 import com.mwronski.jsql.AbstractSelectTestSuite;
 import com.mwronski.jsql.JSql;
+
+import static com.mwronski.jsql.test.TestUtil.assertQueryExecutable;
+import static junit.framework.Assert.assertEquals;
 
 /**
  * Test cases check basic and common SQL statements between grammars.

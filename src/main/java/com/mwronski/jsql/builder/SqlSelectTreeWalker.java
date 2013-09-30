@@ -1,11 +1,11 @@
 package com.mwronski.jsql.builder;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import com.mwronski.jsql.model.Table;
 import com.mwronski.jsql.model.dql.JoinStatement;
 import com.mwronski.jsql.model.dql.SelectStatement;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Walker visiting tokens in SELECT statement and pass them to given

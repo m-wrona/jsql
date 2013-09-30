@@ -1,12 +1,11 @@
 package com.mwronski.jsql.test;
 
-import javax.persistence.EntityManager;
-
+import com.mwronski.jsql.JSql;
+import com.mwronski.jsql.grammar.SqlGrammar;
 import org.junit.After;
 import org.junit.Before;
 
-import com.mwronski.jsql.JSql;
-import com.mwronski.jsql.grammar.SqlGrammar;
+import javax.persistence.EntityManager;
 
 /**
  * Abstract test case for functionality of {@link JSql} in chosen grammar

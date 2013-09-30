@@ -1,8 +1,5 @@
 package com.mwronski.jsql.grammar.jpql;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import com.mwronski.jsql.grammar.common.GrammarUtil;
 import com.mwronski.jsql.grammar.common.Nouns;
 import com.mwronski.jsql.grammar.common.SQLSelectBuilder;
@@ -10,6 +7,9 @@ import com.mwronski.jsql.model.Table;
 import com.mwronski.jsql.model.Variable;
 import com.mwronski.jsql.model.dql.JoinStatement;
 import com.mwronski.jsql.model.expressions.ExpressionChain;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Select statement for JP-QL grammar

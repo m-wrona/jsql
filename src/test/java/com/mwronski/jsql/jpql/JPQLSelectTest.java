@@ -1,12 +1,12 @@
 package com.mwronski.jsql.jpql;
 
-import static com.mwronski.jsql.test.TestUtil.assertQueryExecutable;
-import static junit.framework.Assert.assertEquals;
-
 import com.mwronski.jsql.JSql;
 import com.mwronski.jsql.common.SQLSelectTest;
 import com.mwronski.jsql.grammar.SqlGrammar;
 import com.mwronski.jsql.grammar.jpql.JPQL;
+
+import static com.mwronski.jsql.test.TestUtil.assertQueryExecutable;
+import static junit.framework.Assert.assertEquals;
 
 public class JPQLSelectTest extends SQLSelectTest {
 

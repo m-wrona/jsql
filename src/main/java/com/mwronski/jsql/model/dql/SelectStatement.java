@@ -1,13 +1,13 @@
 package com.mwronski.jsql.model.dql;
 
+import com.mwronski.jsql.model.Table;
+import com.mwronski.jsql.model.Variable;
+import com.mwronski.jsql.model.expressions.ExpressionChain;
+
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-
-import com.mwronski.jsql.model.Table;
-import com.mwronski.jsql.model.Variable;
-import com.mwronski.jsql.model.expressions.ExpressionChain;
 
 /**
  * Class holds information about SELECT

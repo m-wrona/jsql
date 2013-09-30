@@ -1,14 +1,13 @@
 package com.mwronski.jsql.recording;
 
-import java.lang.reflect.Method;
-import java.util.*;
-
+import com.mwronski.jsql.model.Table;
+import com.mwronski.jsql.model.Variable;
 import net.sf.cglib.proxy.Enhancer;
 import net.sf.cglib.proxy.MethodInterceptor;
 import net.sf.cglib.proxy.MethodProxy;
 
-import com.mwronski.jsql.model.Table;
-import com.mwronski.jsql.model.Variable;
+import java.lang.reflect.Method;
+import java.util.*;
 
 /**
  * Class records invocations on SQL sources

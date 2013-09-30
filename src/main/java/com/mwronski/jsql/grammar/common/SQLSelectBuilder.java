@@ -1,9 +1,5 @@
 package com.mwronski.jsql.grammar.common;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 import com.mwronski.jsql.builder.SqlSelectBuilder;
 import com.mwronski.jsql.model.Table;
 import com.mwronski.jsql.model.Variable;
@@ -14,6 +10,10 @@ import com.mwronski.jsql.model.expressions.ExpressionChain;
 import com.mwronski.jsql.model.expressions.InExpression;
 import com.mwronski.jsql.model.expressions.Relation;
 import com.mwronski.jsql.model.expressions.Relation.RelationType;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Basic SELECT statement builder common for all grammars

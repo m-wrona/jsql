@@ -1,10 +1,10 @@
 package com.mwronski.jsql.parser.dql;
 
-import java.util.List;
-
 import com.mwronski.jsql.model.Table;
 import com.mwronski.jsql.model.dql.JoinStatement;
 import com.mwronski.jsql.recording.SqlRecorder;
+
+import java.util.List;
 
 /**
  * SQL JOIN command parser

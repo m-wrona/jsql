@@ -1,12 +1,12 @@
 package com.mwronski.jsql.jpql;
 
-import static com.mwronski.jsql.test.TestUtil.assertQueryExecutable;
-import static junit.framework.Assert.assertEquals;
-
 import com.mwronski.jsql.JSql;
 import com.mwronski.jsql.common.SQLSelectWhereTest;
 import com.mwronski.jsql.grammar.SqlGrammar;
 import com.mwronski.jsql.grammar.jpql.JPQL;
+
+import static com.mwronski.jsql.test.TestUtil.assertQueryExecutable;
+import static junit.framework.Assert.assertEquals;
 
 public class JPQLSelectWhereTest extends SQLSelectWhereTest {
 
@@ -96,14 +96,17 @@ public class JPQLSelectWhereTest extends SQLSelectWhereTest {
     @Override
     protected void verifySelectWhereInsensitiveValue(JSql sql) {
         // TODO Auto-generated method stub
-        assertEquals("SELECT Entity.id, Entity.string FROM Entity Entity WHERE Entity.id=?1 AND lower(Entity.string)=?2", sql.toString());
+        assertEquals(
+                "SELECT Entity.id, Entity.string FROM Entity Entity WHERE Entity.id=?1 AND lower(Entity.string)=?2",
+                sql.toString());
         assertQueryExecutable(sql, em);
     }
 
     @Override
     protected void verifySelectWhereInsensitiveVar(JSql sql) {
         // TODO Auto-generated method stub
-        assertEquals("SELECT e1.id, e1.string FROM Entity e1, Entity e2 WHERE e1.id=?1 AND lower(e1.string)=lower(e2.string)",
+        assertEquals(
+                "SELECT e1.id, e1.string FROM Entity e1, Entity e2 WHERE e1.id=?1 AND lower(e1.string)=lower(e2.string)",
                 sql.toString());
         assertQueryExecutable(sql, em);
     }

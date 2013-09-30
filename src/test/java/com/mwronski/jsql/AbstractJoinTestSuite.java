@@ -1,10 +1,9 @@
 package com.mwronski.jsql;
 
-import org.junit.Test;
-
 import com.mwronski.jsql.parser.dql.Select;
 import com.mwronski.jsql.test.Entity;
 import com.mwronski.jsql.test.JSqlTestCase;
+import org.junit.Test;
 
 /**
  * Test cases for checking join statements.

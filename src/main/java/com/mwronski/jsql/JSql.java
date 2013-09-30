@@ -1,10 +1,5 @@
 package com.mwronski.jsql;
 
-import java.util.Map.Entry;
-
-import javax.persistence.EntityManager;
-import javax.persistence.Query;
-
 import com.mwronski.jsql.builder.SqlCommandBuilder;
 import com.mwronski.jsql.builder.SqlSelectBuilder;
 import com.mwronski.jsql.builder.SqlSelectTreeWalker;
@@ -12,6 +7,10 @@ import com.mwronski.jsql.grammar.SqlGrammar;
 import com.mwronski.jsql.parser.dql.Condition;
 import com.mwronski.jsql.parser.dql.Select;
 import com.mwronski.jsql.recording.SqlRecorder;
+
+import javax.persistence.EntityManager;
+import javax.persistence.Query;
+import java.util.Map.Entry;
 
 /**
  * SQL command manager that build SQL statements in chosen grammar.

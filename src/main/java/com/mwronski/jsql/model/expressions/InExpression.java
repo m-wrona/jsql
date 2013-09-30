@@ -1,10 +1,10 @@
 package com.mwronski.jsql.model.expressions;
 
-import java.util.Arrays;
-import java.util.List;
-
 import com.mwronski.jsql.model.Variable;
 import com.mwronski.jsql.recording.SqlRecorder;
+
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * Class representing collection of values, used in SQL expressions "IN" and
@@ -25,7 +25,7 @@ public final class InExpression implements Expression {
     private final boolean omittable;
 
     public InExpression(final SqlRecorder recorder, final Object param, final CollectionType type,
-                        final boolean omittable, final Object[] values) {
+            final boolean omittable, final Object[] values) {
         var = recorder.nextVariable();
         this.values = values != null && values.length > 0 ? Arrays.asList(values) : null;
         this.omittable = omittable;

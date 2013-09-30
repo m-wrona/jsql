@@ -1,12 +1,12 @@
 package com.mwronski.jsql.parser.dql;
 
-import java.util.List;
-
 import com.mwronski.jsql.model.Table;
 import com.mwronski.jsql.model.Variable;
 import com.mwronski.jsql.model.dql.JoinStatement;
 import com.mwronski.jsql.model.dql.SelectStatement;
 import com.mwronski.jsql.recording.SqlRecorder;
+
+import java.util.List;
 
 /**
  * SQL SELECT command parser. Statement in built in the chain based on current

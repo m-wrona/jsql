@@ -1,12 +1,12 @@
 package com.mwronski.jsql.builder;
 
-import java.util.List;
-import java.util.Map;
-
 import com.mwronski.jsql.model.Table;
 import com.mwronski.jsql.model.Variable;
 import com.mwronski.jsql.model.dql.JoinStatement;
 import com.mwronski.jsql.model.expressions.ExpressionChain;
+
+import java.util.List;
+import java.util.Map;
 
 /**
  * Builder for SELECT statement

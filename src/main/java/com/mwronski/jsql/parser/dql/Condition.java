@@ -1,8 +1,8 @@
 package com.mwronski.jsql.parser.dql;
 
+import com.mwronski.jsql.model.expressions.ExpressionChain;
 import com.mwronski.jsql.model.expressions.InExpression;
 import com.mwronski.jsql.model.expressions.InExpression.CollectionType;
-import com.mwronski.jsql.model.expressions.ExpressionChain;
 import com.mwronski.jsql.model.expressions.Relation;
 import com.mwronski.jsql.model.expressions.Relation.RelationType;
 import com.mwronski.jsql.recording.SqlRecorder;

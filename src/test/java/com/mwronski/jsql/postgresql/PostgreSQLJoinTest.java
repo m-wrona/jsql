@@ -1,12 +1,12 @@
 package com.mwronski.jsql.postgresql;
 
-import static com.mwronski.jsql.test.TestUtil.assertQueryExecutable;
-import static junit.framework.Assert.assertEquals;
-
 import com.mwronski.jsql.AbstractJoinTestSuite;
 import com.mwronski.jsql.JSql;
 import com.mwronski.jsql.grammar.SqlGrammar;
 import com.mwronski.jsql.grammar.postgresql.PostgreSQL;
+
+import static com.mwronski.jsql.test.TestUtil.assertQueryExecutable;
+import static junit.framework.Assert.assertEquals;
 
 public class PostgreSQLJoinTest extends AbstractJoinTestSuite {
 

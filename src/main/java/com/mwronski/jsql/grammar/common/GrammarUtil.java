@@ -1,16 +1,11 @@
 package com.mwronski.jsql.grammar.common;
 
-import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
+import com.mwronski.jsql.model.Table;
+import com.mwronski.jsql.model.Variable;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
-
-import com.mwronski.jsql.grammar.common.Nouns;
-import com.mwronski.jsql.model.Table;
-import com.mwronski.jsql.model.Variable;
+import java.lang.reflect.Method;
 
 /**
  * Util related with grammar and SQL tokens.
