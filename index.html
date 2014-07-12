@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html>
+
+  <head>
+    <meta charset='utf-8' />
+    <meta http-equiv="X-UA-Compatible" content="chrome=1" />
+    <meta name="description" content="Jsql : DSL library for building SQL queries in Java" />
+
+    <link rel="stylesheet" type="text/css" media="screen" href="stylesheets/stylesheet.css">
+
+    <title>Jsql</title>
+  </head>
+
+  <body>
+
+    <!-- HEADER -->
+    <div id="header_wrap" class="outer">
+        <header class="inner">
+          <a id="forkme_banner" href="https://github.com/m-wrona/jsql">View on GitHub</a>
+
+          <h1 id="project_title">Jsql</h1>
+          <h2 id="project_tagline">DSL library for building SQL queries in Java</h2>
+
+            <section id="downloads">
+              <a class="zip_download_link" href="https://github.com/m-wrona/jsql/zipball/master">Download this project as a .zip file</a>
+              <a class="tar_download_link" href="https://github.com/m-wrona/jsql/tarball/master">Download this project as a tar.gz file</a>
+            </section>
+        </header>
+    </div>
+
+    <!-- MAIN CONTENT -->
+    <div id="main_content_wrap" class="outer">
+      <section id="main_content" class="inner">
+        <h1>
+<a name="jsql" class="anchor" href="#jsql"><span class="octicon octicon-link"></span></a>jSQL</h1>
+
+<p>DSL library for building SQL queries in Java in similar way as it's done in LINQ for .NET. </p>
+
+<p>Only DQL (Data Query Language) is supported as modifications on entities should be made using entity manager. </p>
+
+<p><strong>Advantages of jSQL are:</strong> </p>
+
+<ul>
+<li><p>no string SQL statements (queries kept as code and managed by IDE) </p></li>
+<li><p>simplicity </p></li>
+<li><p>no additional classes to be generated </p></li>
+<li><p>no static and thread-safe pattern usage what improves performance significantly </p></li>
+<li><p>support of any grammar by using AST (currently by default grammars of PostgreSQL 8.4 and JPQL are supported) </p></li>
+<li><p>optimizing of conditions in queries </p></li>
+</ul><h1>
+<a name="sample-of-usage" class="anchor" href="#sample-of-usage"><span class="octicon octicon-link"></span></a>Sample of usage:</h1>
+
+<h2>
+<a name="1-pojo-entity-definition" class="anchor" href="#1-pojo-entity-definition"><span class="octicon octicon-link"></span></a>1. POJO entity definition:</h2>
+
+<div class="highlight highlight-java"><pre><span class="nd">@Entity</span>
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">Entity</span> <span class="o">{</span>
+
+    <span class="kd">private</span> <span class="n">Long</span> <span class="n">id</span><span class="o">;</span>
+    <span class="kd">private</span> <span class="n">String</span> <span class="n">string</span><span class="o">;</span>
+    <span class="kd">private</span> <span class="n">String</span> <span class="n">secondString</span><span class="o">;</span>
+
+    <span class="kd">public</span> <span class="n">Long</span> <span class="nf">getId</span><span class="o">()</span> <span class="o">{</span>
+        <span class="k">return</span> <span class="n">id</span><span class="o">;</span>
+    <span class="o">}</span>
+
+    <span class="kd">public</span> <span class="n">String</span> <span class="nf">getString</span><span class="o">()</span> <span class="o">{</span>
+        <span class="k">return</span> <span class="n">string</span><span class="o">;</span>
+    <span class="o">}</span>
+
+    <span class="kd">public</span> <span class="n">String</span> <span class="nf">getSecondString</span><span class="o">()</span> <span class="o">{</span>
+        <span class="k">return</span> <span class="n">secondString</span><span class="o">;</span>
+    <span class="o">}</span>
+
+<span class="o">}</span>
+</pre></div>
+
+<h2>
+<a name="2-bulding-query-using-jsql" class="anchor" href="#2-bulding-query-using-jsql"><span class="octicon octicon-link"></span></a>2. Bulding query using jSQL:</h2>
+
+<div class="highlight highlight-java"><pre><span class="c1">//create jSQL for PostgreSQL 8.4</span>
+<span class="n">JSql</span> <span class="n">sql</span> <span class="o">=</span> <span class="k">new</span> <span class="nf">JSql</span><span class="o">(</span><span class="k">new</span> <span class="nf">PostgreSQL</span><span class="o">());</span>
+<span class="c1">//prepare recording on entity</span>
+<span class="n">Entity</span> <span class="n">entity</span> <span class="o">=</span> <span class="n">sql</span><span class="o">.</span><span class="na">alias</span><span class="o">(</span><span class="n">Entity</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
+<span class="c1">//build query</span>
+<span class="n">sql</span><span class="o">.</span><span class="na">select</span><span class="o">(</span><span class="n">entity</span><span class="o">.</span><span class="na">getId</span><span class="o">(),</span> <span class="n">entity</span><span class="o">.</span><span class="na">getString</span><span class="o">()).</span><span class="na">from</span><span class="o">(</span><span class="n">entity</span><span class="o">)</span>
+   <span class="o">.</span><span class="na">where</span><span class="o">(</span><span class="n">sql</span><span class="o">.</span><span class="na">cond</span><span class="o">().</span><span class="na">eq</span><span class="o">(</span><span class="n">entity</span><span class="o">.</span><span class="na">getId</span><span class="o">(),</span> <span class="mi">5</span><span class="o">).</span><span class="na">and</span><span class="o">().</span><span class="na">eq</span><span class="o">(</span><span class="n">entity</span><span class="o">.</span><span class="na">getString</span><span class="o">(),</span> <span class="s">"aaa"</span><span class="o">));</span>
+<span class="c1">//build JPA query</span>
+<span class="n">EntityManager</span> <span class="n">em</span> <span class="o">=</span> <span class="o">...</span> <span class="c1">//provide your entity manager here</span>
+<span class="n">Query</span> <span class="n">query</span> <span class="o">=</span> <span class="n">sql</span><span class="o">.</span><span class="na">getQuery</span><span class="o">(</span><span class="n">em</span> <span class="o">,</span> <span class="n">Entity</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
+<span class="n">query</span><span class="o">.</span><span class="na">getResultList</span><span class="o">();</span>
+</pre></div>
+
+<h1>
+<a name="build" class="anchor" href="#build"><span class="octicon octicon-link"></span></a>Build</h1>
+
+<p>jSQL is using test DB to check whether all built SQL statements are correct.</p>
+
+<p>Therefore before making build, PostgreSQL 8.4 database must be created with following credentials:</p>
+
+<pre><code>Database: jsql
+Port: 5432
+Username: jsql
+Password: jsql
+</code></pre>
+
+<p>After setting up database just run maven:</p>
+
+<pre><code>mvn clean install
+</code></pre>
+      </section>
+    </div>
+
+    <!-- FOOTER  -->
+    <div id="footer_wrap" class="outer">
+      <footer class="inner">
+        <p class="copyright">Jsql maintained by <a href="https://github.com/m-wrona">m-wrona</a></p>
+        <p>Published with <a href="http://pages.github.com">GitHub Pages</a></p>
+      </footer>
+    </div>
+
+              <script type="text/javascript">
+            var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+            document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+          </script>
+          <script type="text/javascript">
+            try {
+              var pageTracker = _gat._getTracker("jSQL, DSL, SQL, JPA, Java");
+            pageTracker._trackPageview();
+            } catch(err) {}
+          </script>
+
+
+  </body>
+</html>
